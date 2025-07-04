@@ -50,7 +50,7 @@ function sendWingoMessage() {
     `Period : ${period}\n` +
     `Size : ${size}\n` +
     `Colour : ${colorObj.emoji}\n\n` +
-    `FB999 - Win More than Ever`;
+    `𝑯𝑮𝑵𝑰𝑪𝑬 - Win More than Ever`;
 
   bot.telegram.sendMessage(channelId, message)
     .then(() => {
