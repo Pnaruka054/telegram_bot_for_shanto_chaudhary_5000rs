@@ -1,46 +1,37 @@
 const { Telegraf } = require('telegraf');
+const cron = require('node-cron');
 require('dotenv').config();
 const app = require('express')()
 
 // Initialize bot
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+bot.start((ctx) => ctx.reply('Sorry Dear but this bot is Private and using my another user if you went to create you own telegram bot then contact on - @Professional_telegram_bot_create'))
+
 // Channel ID: use @username or -100... numeric ID
 const channelId = process.env.CHANNEL_ID || '@your_channel_name';
 
-// Function to generate dynamic period
+// Function to generate dynamic period (with IST timezone)
 function generateDynamicPeriod() {
-  // Get current UTC time
   const nowUTC = new Date();
-
-  // Convert to IST (UTC + 5:30)
   const istOffsetMs = 5.5 * 60 * 60 * 1000;
   const nowIST = new Date(nowUTC.getTime() + istOffsetMs);
 
-  // YYYYMMDD
   const dateStr = `${nowIST.getFullYear()}${String(nowIST.getMonth() + 1).padStart(2, '0')}${String(nowIST.getDate()).padStart(2, '0')}`;
-
   const fixedCode = '10001';
 
-  // Start of day IST
-  const startOfDayIST = new Date(
-    nowIST.getFullYear(),
-    nowIST.getMonth(),
-    nowIST.getDate()
-  );
+  // Get minutes since IST 00:00
+  const istHours = nowIST.getUTCHours();
+  const istMinutes = nowIST.getUTCMinutes();
+  const totalMinutes = (istHours * 60) + istMinutes;
 
-  const minutesSinceStart = Math.floor((nowIST - startOfDayIST) / 60000);
+  const baseSequence = 9671;
+  const sequenceNumber = baseSequence + totalMinutes;
 
-  const baseSequence = 9670;
-
-  const sequenceNumber = baseSequence + minutesSinceStart;
-
-  const period = `${dateStr}${fixedCode}${sequenceNumber}`;
-
-  return period;
+  return `${dateStr}${fixedCode}${sequenceNumber}`;
 }
 
-// Function to generate random size and color
+// Random size and color
 function getRandomSize() {
   return Math.random() < 0.5 ? 'BIG' : 'SMALL';
 }
@@ -49,7 +40,7 @@ function getRandomColor() {
   return Math.random() < 0.5 ? { text: 'RED', emoji: '🔴' } : { text: 'GREEN', emoji: '🟢' };
 }
 
-// Function to send message
+// Send message
 function sendWingoMessage() {
   const period = generateDynamicPeriod();
   const size = getRandomSize();
@@ -63,23 +54,23 @@ function sendWingoMessage() {
 
   bot.telegram.sendMessage(channelId, message)
     .then(() => {
-      console.log(`✅ Sent: ${period}`);
+      console.log(`✅ Sent at IST minute start: ${period}`);
     })
     .catch((err) => {
       console.error("❌ Error sending message:", err);
     });
 }
 
-// Start sending every 1 min
-setInterval(sendWingoMessage, 60 * 1000);
+// Cron job: every 1 min at 00 sec in IST
+cron.schedule('* * * * *', () => {
+  sendWingoMessage();
+}, {
+  timezone: 'Asia/Kolkata'
+});
 
-// Optionally send one immediately at start
-sendWingoMessage();
+console.log("✅ Cron started, sending message every 1 min at IST 00 sec.");
 
-// No need to launch updates handler if you only want to send messages
-// bot.launch();  // Only if you want to receive updates
-
-
+// Express app to keep server alive
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Server running on port ${PORT}`);
