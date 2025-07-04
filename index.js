@@ -1,12 +1,14 @@
+require('dotenv').config();
 const { Telegraf } = require('telegraf');
 const cron = require('node-cron');
-require('dotenv').config();
 const app = require('express')()
 
 // Initialize bot
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.start((ctx) => ctx.reply('Sorry Dear but this bot is Private and using my another user if you went to create you own telegram bot then contact on - @Professional_telegram_bot_create'))
+bot.start((ctx) => {
+  ctx.reply('Sorry Dear but this bot is Private and using my another user if you want to create your own telegram bot then contact on - @Professional_telegram_bot_create');
+});
 
 // Channel ID: use @username or -100... numeric ID
 const channelId = process.env.CHANNEL_ID || '@your_channel_name';
@@ -48,9 +50,9 @@ function sendWingoMessage() {
 
   const message = `Market : Wingo 1 Min\n\n` +
     `Period : ${period}\n` +
-    `Size : ${size}\n` +
+    `Size : 👉 ${size}\n` +
     `Colour : ${colorObj.emoji}\n\n` +
-    `𝑯𝑮𝑵𝑰𝑪𝑬 - Win More than Ever`;
+    `𝑯𝑮𝑵𝑰𝑪𝑬 - Vs DK,win More than Ever`;
 
   bot.telegram.sendMessage(channelId, message)
     .then(() => {
@@ -69,6 +71,8 @@ cron.schedule('* * * * *', () => {
 });
 
 console.log("✅ Cron started, sending message every 1 min at IST 00 sec.");
+
+bot.launch();
 
 // Express app to keep server alive
 const PORT = process.env.PORT || 3000;
