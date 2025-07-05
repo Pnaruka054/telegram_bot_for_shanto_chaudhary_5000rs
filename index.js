@@ -20,7 +20,7 @@ function generateDynamicPeriod() {
   const nowIST = new Date(nowUTC.getTime() + istOffsetMs);
 
   const dateStr = `${nowIST.getFullYear()}${String(nowIST.getMonth() + 1).padStart(2, '0')}${String(nowIST.getDate()).padStart(2, '0')}`;
-  const fixedCode = '10001';
+  const fixedCode = '10000';
 
   // Get minutes since IST 00:00
   const istHours = nowIST.getUTCHours();
